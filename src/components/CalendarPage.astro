@@ -30,6 +30,8 @@ const { defaultGame = 'all' } = Astro.props;
     </script>
     <title>MiHoYo游戏更新日期</title>
     <!--link rel="icon" type="image/svg+xml" href=""/-->
+    <meta name="google-site-verification" content="tXyJhIUjwgDkdY4scPFF1nBiVW9co3-HjowXazdoL7I" />
+    <meta name="msvalidate.01" content="900BFBEC9CA24BE1B56B696EF1CE3B2E" />
   </head>
   <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 antialiased">
     <header class="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
@@ -162,6 +164,15 @@ const { defaultGame = 'all' } = Astro.props;
       import '../scripts/back-to-top';
       import '../scripts/theme';
       import '../scripts/calendar';
+    </script>
+    <script async src="https://googletagmanager.com" is:inline></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-7S99GDXW6L');
     </script>
   </body>
 </html>
