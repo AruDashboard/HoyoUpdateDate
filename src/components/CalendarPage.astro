@@ -1,0 +1,167 @@
+---
+import '../styles/global.css';
+import subsetFontUrl from '../assets/fonts/genshin-subset.woff2?url';
+import { games, years } from '../lib/calendar';
+import { availableImages } from '../lib/images';
+interface Props {
+  defaultGame?: string;
+}
+const { defaultGame = 'all' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN" class="dark" data-default-game={defaultGame}>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preload" href={subsetFontUrl} as="font" type="font/woff2" crossorigin />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="原神、崩坏：星穹铁道、绝区零版本更新日历。" />
+    <script is:inline>
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+      try {
+        document.documentElement.classList.toggle(
+          'dark',
+          localStorage.getItem('theme') !== 'light',
+        );
+      } catch {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+    <title>MiHoYo游戏更新日期</title>
+    <!--link rel="icon" type="image/svg+xml" href=""/-->
+  </head>
+  <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 antialiased">
+    <header class="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <div class="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-5 md:px-10">
+        <a href="./" class="text-base font-semibold tracking-tight">
+          MiHoYo游戏更新日期
+        </a>
+        <nav class="flex items-center gap-5 text-sm">
+          <button
+            id="theme-toggle"
+            type="button"
+            aria-pressed="true"
+            class="rounded-lg px-2 py-1.5 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+          >
+            <span class="dark:hidden">☾</span>
+            <span class="hidden dark:inline">☀</span>
+          </button>
+          <a
+            href="https://github.com/AruDashboard/HoyoUpdateDate/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
+          >
+            报错 ↗
+          </a>
+        </nav>
+      </div>
+    </header>
+    <main class="mx-auto max-w-[1440px] px-5 pb-10 pt-10 md:px-10 md:pt-14">
+      <section class="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 p-4 md:px-6">
+          <div class="flex flex-wrap gap-2" aria-label="筛选">
+            <button
+              class:list={['game-filter', { active: defaultGame === 'all' }]}
+              data-game="all"
+              aria-pressed={defaultGame === 'all'}
+            >
+              全部游戏
+            </button>
+            {games.map((game, i) => (
+              <button
+                class:list={['game-filter', { active: defaultGame === game }]}
+                data-game={game}
+              >
+                <span class={`game-dot dot-${i}`}></span>
+                {game}
+              </button>
+            ))}
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="flex cursor-pointer items-center gap-2 text-xs text-slate-500">
+              <input id="updates-only" type="checkbox" class="size-3.5 accent-sky-600" />
+              仅看更新日
+            </label>
+            <span class="h-4 w-px bg-slate-200 dark:bg-slate-700"></span>
+            <button
+              id="today"
+              class="text-xs font-medium text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+            >
+              回到今天 ↗
+            </button>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-900/70 px-4 py-3 md:px-6">
+          <div class="flex items-center gap-3">
+            <label for="year" class="text-xs text-slate-400">
+              跳转至
+            </label>
+            <select
+              id="year"
+              class="rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 px-3 py-1.5 text-xs"
+            >
+              {years.map((year) => (
+                <option value={year}>{year} 年</option>
+              ))}
+            </select>
+          </div>
+          <span id="range" class="text-xs tabular-nums text-slate-400"></span>
+        </div>
+        <div id="calendar-container">
+          <table id="calendar">
+            <thead>
+              <tr>
+                <th class="date-heading">
+                  <span class="text-xs font-normal text-slate-400">时间轴</span>
+                  <p class="mt-1 text-sm">
+                    日期 <span class="ml-1 text-slate-300">↓</span>
+                  </p>
+                </th>
+                {games.map((game, i) => (
+                  <th data-column={game} hidden={defaultGame !== 'all' && defaultGame !== game}>
+                    <div class="flex items-center justify-center gap-2">
+                      <span class={`game-dot dot-${i}`}></span>
+                      <span>{game}</span>
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody id="calendar-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <button
+      id="back-to-top"
+      type="button"
+      hidden
+      class="fixed bottom-5 right-5 z-10 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-lg hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+    >
+      <span aria-hidden="true">↑</span>
+      回到顶端
+    </button>
+    <dialog
+      id="image-dialog"
+      class="m-auto max-h-[90dvh] max-w-[94vw] rounded-2xl bg-white dark:bg-slate-900 dark:text-slate-200 p-3 shadow-xl backdrop:bg-slate-950/70"
+    >
+      <form method="dialog" class="mb-2 flex items-center justify-between gap-8 px-1">
+        <span id="image-title" class="text-sm"></span>
+        <button class="rounded-lg px-3 py-1 text-slate-500 hover:bg-slate-100">✕</button>
+      </form>
+      <img id="full-image" alt="" class="max-h-[75dvh] rounded-lg object-contain" />
+    </dialog>
+    <script
+      id="available-images"
+      type="application/json"
+      set:html={JSON.stringify(availableImages)}
+    />
+    <script>
+      import '../scripts/back-to-top';
+      import '../scripts/theme';
+      import '../scripts/calendar';
+    </script>
+  </body>
+</html>

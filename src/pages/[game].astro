@@ -1,0 +1,15 @@
+---
+import CalendarPage from '../components/CalendarPage.astro';
+
+export function getStaticPaths() {
+  return [
+    { params: { game: 'genshin' }, props: { defaultGame: '原神' } },
+    { params: { game: 'starrail' }, props: { defaultGame: '崩坏：星穹铁道' } },
+    { params: { game: 'zzz' }, props: { defaultGame: '绝区零' } },
+  ];
+}
+
+const { defaultGame } = Astro.props;
+---
+
+<CalendarPage defaultGame={defaultGame} />
