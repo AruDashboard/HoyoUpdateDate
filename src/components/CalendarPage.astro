@@ -36,9 +36,11 @@ const { defaultGame = 'all' } = Astro.props;
   <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 antialiased">
     <header class="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       <div class="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-5 md:px-10">
-        <a href="./" class="text-base font-semibold tracking-tight">
-          MiHoYo游戏更新日期
-        </a>
+        <span>
+          <a href="https://arudashboard.github.io/">主页</a>&nbsp;/&nbsp;
+          <span>MiHoYo游戏更新日期</span>
+        </span>
+        <div class="spacer"></div>
         <nav class="flex items-center gap-5 text-sm">
           <button
             id="theme-toggle"
