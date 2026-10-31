@@ -652,7 +652,7 @@ const UPDATE_DATES: UpdateCalendar = {
     {
       date: '2026-11-11',
       game: '崩坏：星穹铁道',
-      image: '',
+      image: 'images/starrail/4.7.avif',
       text: '4.7 - 此刻将群星付之一笑',
     },
   ],
