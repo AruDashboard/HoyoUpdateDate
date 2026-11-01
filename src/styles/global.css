@@ -2,6 +2,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  --toolbar-h: 64px;
   color-scheme: light;
   --surface: #fff;
   --border: #e2e8f0;
@@ -54,18 +55,6 @@
   }
   .game-filter.active {
     @apply bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-100 dark:bg-sky-950 dark:text-sky-300 dark:ring-sky-900;
-  }
-  .game-dot {
-    @apply inline-block size-2 shrink-0 rounded-full;
-  }
-  .dot-0 {
-    @apply bg-teal-500;
-  }
-  .dot-1 {
-    @apply bg-violet-500;
-  }
-  .dot-2 {
-    @apply bg-orange-400;
   }
 }
 

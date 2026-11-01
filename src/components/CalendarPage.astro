@@ -7,6 +7,9 @@ interface Props {
   defaultGame?: string;
 }
 const { defaultGame = 'all' } = Astro.props;
+const DEFAULT_GAMES = ['原神', '崩坏：星穹铁道', '绝区零'];
+const initialSelected =
+  defaultGame !== 'all' && games.includes(defaultGame) ? [defaultGame] : DEFAULT_GAMES;
 ---
 
 <!doctype html>
@@ -62,41 +65,11 @@ const { defaultGame = 'all' } = Astro.props;
         </nav>
       </div>
     </header>
-    <main class="mx-auto max-w-[1440px] px-5 pb-10 pt-10 md:px-10 md:pt-14">
+    <main
+      class="mx-auto max-w-[1440px] px-5 pt-10 md:px-10 md:pt-14"
+      style="padding-bottom: calc(var(--toolbar-h, 64px) + 2.5rem)"
+    >
       <section class="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 p-4 md:px-6">
-          <div class="flex flex-wrap gap-2" aria-label="筛选">
-            <button
-              class:list={['game-filter', { active: defaultGame === 'all' }]}
-              data-game="all"
-              aria-pressed={defaultGame === 'all'}
-            >
-              全部游戏
-            </button>
-            {games.map((game, i) => (
-              <button
-                class:list={['game-filter', { active: defaultGame === game }]}
-                data-game={game}
-              >
-                <span class={`game-dot dot-${i}`}></span>
-                {game}
-              </button>
-            ))}
-          </div>
-          <div class="flex items-center gap-3">
-            <label class="flex cursor-pointer items-center gap-2 text-xs text-slate-500">
-              <input id="updates-only" type="checkbox" class="size-3.5 accent-sky-600" />
-              仅看更新日
-            </label>
-            <span class="h-4 w-px bg-slate-200 dark:bg-slate-700"></span>
-            <button
-              id="today"
-              class="text-xs font-medium text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
-            >
-              回到今天 ↗
-            </button>
-          </div>
-        </div>
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-900/70 px-4 py-3 md:px-6">
           <div class="flex items-center gap-3">
             <label for="year" class="text-xs text-slate-400">
@@ -124,7 +97,7 @@ const { defaultGame = 'all' } = Astro.props;
                   </p>
                 </th>
                 {games.map((game, i) => (
-                  <th data-column={game} hidden={defaultGame !== 'all' && defaultGame !== game}>
+                  <th data-column={game} hidden={!initialSelected.includes(game)}>
                     <div class="flex items-center justify-center gap-2">
                       <span class={`game-dot dot-${i}`}></span>
                       <span>{game}</span>
@@ -138,11 +111,45 @@ const { defaultGame = 'all' } = Astro.props;
         </div>
       </section>
     </main>
+    <div
+      id="toolbar"
+      class="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95"
+    >
+      <div class="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3 md:px-10">
+        <div class="flex flex-wrap gap-1.5" aria-label="筛选">
+          {games.map((game, i) => (
+            <label class="game-filter cursor-pointer has-[:checked]:bg-sky-50 has-[:checked]:text-sky-700 has-[:checked]:ring-1 has-[:checked]:ring-inset has-[:checked]:ring-sky-100 dark:has-[:checked]:bg-sky-950 dark:has-[:checked]:text-sky-300 dark:has-[:checked]:ring-sky-900">
+              <input
+                type="checkbox"
+                class="game-check size-3.5 accent-sky-600"
+                data-game={game}
+                checked={initialSelected.includes(game)}
+              />
+              {game}
+            </label>
+          ))}
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="flex cursor-pointer items-center gap-2 text-xs text-slate-500">
+            <input id="updates-only" type="checkbox" class="size-3.5 accent-sky-600" />
+            仅看更新日
+          </label>
+          <span class="h-4 w-px bg-slate-200 dark:bg-slate-700"></span>
+          <button
+            id="today"
+            class="text-xs font-medium text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+          >
+            回到今天 ↗
+          </button>
+        </div>
+      </div>
+    </div>
     <button
       id="back-to-top"
       type="button"
       hidden
-      class="fixed bottom-5 right-5 z-10 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-lg hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+      style="bottom: calc(var(--toolbar-h, 64px) + 1.25rem)"
+      class="fixed right-5 z-10 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-lg hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
     >
       <span aria-hidden="true">↑</span>
       回到顶端

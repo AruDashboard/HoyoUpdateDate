@@ -4,22 +4,42 @@ const $ = <T extends HTMLElement>(selector: string) => document.querySelector<T>
 const tbody = $<HTMLTableSectionElement>('#calendar-body');
 const availableImages = new Set<string>(JSON.parse($('#available-images').textContent || '[]'));
 const today = dateKey(new Date());
-const start = events[0]?.date ?? today;
-const end = [events.at(-1)?.date ?? today, today].sort().at(-1)!;
-const days = daysBetween(start, end);
 const indexed = new Map<string, typeof events>();
 for (const event of events) indexed.set(event.date, [...(indexed.get(event.date) ?? []), event]);
 const defaultGame = document.documentElement.dataset.defaultGame;
-let selected = defaultGame && games.includes(defaultGame) ? defaultGame : 'all';
+const forced = defaultGame && games.includes(defaultGame) ? defaultGame : null;
+const DEFAULT_GAMES = ['原神', '崩坏：星穹铁道', '绝区零'].filter((g) => games.includes(g));
+const STORAGE_KEY = 'games';
+function loadSelection(): Set<string> {
+  if (forced) return new Set([forced]);
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return new Set(parsed.filter((g) => games.includes(g)));
+    }
+  } catch {}
+  return new Set(DEFAULT_GAMES);
+}
+function saveSelection() {
+  if (forced) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...selected]));
+  } catch {}
+}
+let selected = loadSelection();
 let updatesOnly = false;
 let visible: string[] = [];
 const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 const dialog = $<HTMLDialogElement>('#image-dialog');
 function render() {
   const fragment = document.createDocumentFragment();
+  const selectedEvents = events.filter((e) => selected.has(e.game));
+  const start = [selectedEvents[0]?.date ?? today, today].sort()[0]!;
+  const end = [selectedEvents.at(-1)?.date ?? today, today].sort().at(-1)!;
+  const days = daysBetween(start, end);
   visible = days.filter(
-    (day) =>
-      !updatesOnly || indexed.get(day)?.some((e) => selected === 'all' || e.game === selected),
+    (day) => !updatesOnly || indexed.get(day)?.some((e) => selected.has(e.game)),
   );
   for (const day of visible) {
     const date = parseDate(day);
@@ -44,7 +64,7 @@ function render() {
     for (const game of games) {
       const cell = row.insertCell();
       cell.dataset.column = game;
-      cell.hidden = selected !== 'all' && selected !== game;
+      cell.hidden = !selected.has(game);
       const items = (indexed.get(day) ?? []).filter((e) => e.game === game);
       if (!items.length) {
         const dash = document.createElement('span');
@@ -93,7 +113,7 @@ function render() {
   tbody.replaceChildren(fragment);
   document
     .querySelectorAll<HTMLElement>('thead [data-column]')
-    .forEach((th) => (th.hidden = selected !== 'all' && th.dataset.column !== selected));
+    .forEach((th) => (th.hidden = !selected.has(th.dataset.column!)));
   $('#range').textContent = `${visible[0] ?? '—'} — ${visible.at(-1) ?? '—'}`;
 }
 function jump(target: string, smooth = true) {
@@ -118,19 +138,18 @@ function anchor() {
     )?.dataset.date ?? today
   );
 }
-document.querySelectorAll<HTMLButtonElement>('.game-filter').forEach((button) =>
-  button.addEventListener('click', () => {
+const checkboxes = document.querySelectorAll<HTMLInputElement>('.game-check');
+checkboxes.forEach((box) => {
+  box.checked = selected.has(box.dataset.game!);
+  box.addEventListener('change', () => {
     const target = anchor();
-    selected = button.dataset.game!;
-    document.querySelectorAll('.game-filter').forEach((b) => {
-      const active = b === button;
-      b.classList.toggle('active', active);
-      b.setAttribute('aria-pressed', String(active));
-    });
+    if (box.checked) selected.add(box.dataset.game!);
+    else selected.delete(box.dataset.game!);
+    saveSelection();
     render();
     jump(target, false);
-  }),
-);
+  });
+});
 $<HTMLInputElement>('#updates-only').addEventListener('change', (e) => {
   const target = anchor();
   updatesOnly = (e.target as HTMLInputElement).checked;
@@ -146,6 +165,14 @@ $<HTMLSelectElement>('#year').addEventListener('change', (e) =>
 dialog.addEventListener('click', (e) => {
   if (e.target === dialog) dialog.close();
 });
+
+const toolbar = $('#toolbar');
+function syncToolbarHeight() {
+  document.documentElement.style.setProperty('--toolbar-h', `${toolbar.offsetHeight}px`);
+}
+syncToolbarHeight();
+window.addEventListener('resize', syncToolbarHeight, { passive: true });
+if ('ResizeObserver' in window) new ResizeObserver(syncToolbarHeight).observe(toolbar);
 
 render();
 scrollToInitialDate(() => jump(today, false), $('#calendar'));

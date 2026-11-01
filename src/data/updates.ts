@@ -11,7 +11,7 @@ export interface UpdateCalendar {
 }
 
 const UPDATE_DATES: UpdateCalendar = {
-  games: ['原神', '崩坏：星穹铁道', '绝区零'],
+  games: ['原神', '崩坏：星穹铁道', '绝区零', '星布谷地'],
   events: [
     {
       date: '2020-09-28',
@@ -654,6 +654,12 @@ const UPDATE_DATES: UpdateCalendar = {
       game: '崩坏：星穹铁道',
       image: 'images/starrail/4.7.avif',
       text: '4.7 - 此刻将群星付之一笑',
+    },
+    {
+      date: '2026-12-04',
+      game: '星布谷地',
+      image: 'images/petit_planet/1.0.avif',
+      text: '1.0 - 公测',
     },
   ],
 };
