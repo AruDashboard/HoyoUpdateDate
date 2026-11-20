@@ -656,6 +656,12 @@ const UPDATE_DATES: UpdateCalendar = {
       text: '4.7 - 此刻将群星付之一笑',
     },
     {
+      date: '2026-12-02',
+      game: '绝区零',
+      image: 'images/zzz/3.4.avif',
+      text: '3.4 - 长日终尽',
+    },
+    {
       date: '2026-12-04',
       game: '星布谷地',
       image: 'images/petit_planet/1.0.avif',
